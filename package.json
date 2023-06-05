@@ -11,8 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@socket.io/admin-ui": "^0.5.1",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
     "eiows": "^6.5.1",
     "http": "^0.0.1-security",
     "markdown-it": "^13.0.1",

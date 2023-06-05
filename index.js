@@ -1,14 +1,12 @@
 // Modules init
 const { Server } = require("socket.io");
 const { createServer } = require('http');
-const cookieParser = require('cookie-parser');
 const md = require('markdown-it')('commonmark', {
   html: true,
   linkify: true,
   typographer: true
 });
 const striptags = require('striptags');
-const cors = require('cors');
 const { Socket } = require("socket.io-client");
 const { instrument } = require("@socket.io/admin-ui");
 
@@ -33,8 +31,6 @@ instrument(io, {
     password: "$2y$10$TkyJP6MUI0yRCY4JvRbAQ.A5grLzOoSgizoyoyHxDGjn1Vj8l7U4C"
   },
 });
-app.use(cors()); 
-app.use(cookieParser());
 
 io.on("connect_error", (err) => {
   console.log(`connect_error due to ${err.message}`);
@@ -114,3 +110,4 @@ io.on('connection', function (client) {
 });
 
 httpServer.listen(3000);
+console.log('Listening on port: 3000...')
