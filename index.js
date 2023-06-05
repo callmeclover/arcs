@@ -1,7 +1,6 @@
 // Modules init
-const express = require("express");
-const { createServer } = require("http");
 const { Server } = require("socket.io");
+const { createServer } = require('http');
 const cookieParser = require('cookie-parser');
 const md = require('markdown-it')('commonmark', {
   html: true,
@@ -10,25 +9,15 @@ const md = require('markdown-it')('commonmark', {
 });
 const striptags = require('striptags');
 const cors = require('cors');
-
-// Routes
-var routeIndex = require("./routes/index");
-var routeExtras = require("./routes/extras");
-var routeAuth = require("./routes/auth");
-var routeError = require("./routes/error");
 const { Socket } = require("socket.io-client");
 const { instrument } = require("@socket.io/admin-ui");
 
 // Declarations
-const PORT = 8080;
-const BLOCKLIST = [];
-const BOPBOTBANNEDWORDS = ['you are gay', 'methamphetamine', 'heroin', 'drug', 'crack', 'faggot', 'fag', 'cocaine', 'fuck', 'shit', 'bitch', 'nigger', 'nigga'];
+const httpServer = createServer();
 VERSION = 'v1.0.0'
 
 // App init
-const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, { 
+const io = new Server({ 
   maxHttpBufferSize: 1e8,
   wsEngine: require("eiows").Server,
   cors: {
@@ -44,11 +33,7 @@ instrument(io, {
     password: "$2y$10$TkyJP6MUI0yRCY4JvRbAQ.A5grLzOoSgizoyoyHxDGjn1Vj8l7U4C"
   },
 });
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-app.use(express.json()); 
 app.use(cors()); 
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 io.on("connect_error", (err) => {
@@ -96,14 +81,7 @@ io.on('connection', function (client) {
   });
 
   client.on('messages', function (data) {
-
-  //  var msgid = uuid() 
-    if (new RegExp(BOPBOTBANNEDWORDS.join("|")).test(data.text)) {
-    client.emit('broad', "<div class='chmscon'><strong id='user'>BopBot: </strong><span id='date' style='color: rgb(127, 127, 127) !important; font-weight: 300 !important; font-size: small;'>[at <span id='datea'></span>]</span id='date'><div class='chat-msg bopbot'>You've been bopped! This is because your message contained banned words. Your message was not sent. Only you can see this message. Click <a style='text-decoration: wavy underline; color: inherit;' href='/bopbot'>here</a> to learn more.</div></div>")
-    } else if (new RegExp(BOPBOTBANNEDWORDS.join("|")).test(data.disName)) {
-      client.emit('broad', "<div class='chmscon'><strong id='user'>BopBot: </strong><span id='date' style='color: #000000 !important; font-weight: 300 !important; font-size: small;'>[at <span id='datea'></span>]</span id='date'><div class='chat-msg bopbot'>You've been bopped! This is because your username contained banned words. Your message was not sent. Only you can see this message. Click <a style='text-decoration: wavy underline; color: inherit;' href='/bopbot'>here</a> to learn more.</div></div>")
-    } /*else if (!data.text.replace(/\s/g, '').length && data.file == null) {
-    } */else if (data.type == 'none') {
+    if (data.type == 'none') {
       /*
 
       CHEATSHEET:
@@ -135,33 +113,4 @@ io.on('connection', function (client) {
 
 });
 
-// Middlewares init
-const c403 = function (req, res, next) {
-  BLOCKLIST.forEach((i) => {
-    if (req.url == i) {
-      console.log("This is a forbidden page, redirecting...");
-      res.render('errors/error403');
-    }
-  })
-  next();
-}
-
-// Middlewares use
-app.use(c403)
-
-// Routes init (VERY IMPORTANT)
-app.use("/", routeIndex);
-app.use("/", routeAuth);
-app.use("/", routeExtras);
-
-app.use("/", routeError);
-
-
-httpServer.listen(PORT, function (err) {
-  if (err) console.error("Error in server setup process");
-  console.log("Server listening on Port", PORT);
-});
-
-app.get('/', function (req, res) {
-  res.render('index');
-})
+httpServer.listen(3000);
